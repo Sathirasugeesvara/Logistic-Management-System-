@@ -5,7 +5,7 @@
 #define MAX_CITI 30
 #define MAX_NAME_SIZE 20
 #define MAX_DELI 50
-#define FUEL_PRIZ 310
+#define FUEL_PRIZ 350
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 int count = 0 ;
@@ -14,11 +14,11 @@ struct vehicle
 {
     char type[20];
     int capacity;
-    int rate;
-    int avgSpeed;
-    int fuelEfficincy;
+    float rate;
+    float avgSpeed;
+    float fuelEfficincy;
 };
-struct vehicle vehi[3] = {{"Van", 1000, 30, 60, 12},{"Truck", 5000, 40, 50, 6},{"Lorry", 10000, 80, 45, 4}
+struct vehicle vehi[3] = {{"Van", 1000, 30.0, 60.0, 12.0},{"Truck", 5000, 40.0, 50.0, 6.0},{"Lorry", 10000, 80.0, 45.0, 4.0}
 };
 
 
@@ -41,7 +41,7 @@ void showCity();
 int main()
 {
     printf("LOGISTICS MANAGEMENT SYSTEM\t\n");
-    printf("----------------------------\t\n\n");
+    printf("----------------------------\t\n");
     int choice;
     do
     {
@@ -53,27 +53,25 @@ int main()
             toHandleCities();
             break;
         case 2:
-
+            //handleDistance();
             break;
         case 3:
-
+            showVehicles();
             break;
         case 4:
+            handleDelivery();
             break;
-
         case 5:
-
+            //showReport();
             break;
         case 6:
             printf("Exiting...\n\n");
             break;
-
         default:
             printf("Invalid choice... Enter choice again...\n\n");
         }
     }
     while(choice!=6);
-
 
     return 0;
 }
@@ -81,7 +79,7 @@ int main()
 
 void mainMenuShow()
 {
-    printf("1. City Management\n");
+    printf("\n1. City Management\n");
     printf("2. Distance Management\n");
     printf("3. Vehicle Management\n");
     printf("4. New Delivery\n");
@@ -94,7 +92,7 @@ void mainMenuShow()
 void toHandleCities()
 {
     printf("\nCity Management Section\n");
-    int ChoiceTHC=0, index = 0;
+    int ChoiceTHC=0;
 
     do
     {
@@ -121,7 +119,7 @@ void toHandleCities()
             renameCity();
             break;
         case 5:
-            printf("Main menu...\n\n");
+            printf("Main menu...\n");
             break;
         default:
             printf("Invalid choice... Enter choice again...\n");
@@ -255,7 +253,35 @@ void showCity()
 }
 
 
-void vehicleDeta()
+/*void handleDistance()
 {
 
+}*/
+
+
+void showVehicles()
+{
+    printf("\n---Vehicle Informations---\n");
+    printf("%-6s | %-10s | %12s | %-10s | %-12s | %15s\n","No","Type","Capacity(Kg)","RatePerKm","Speed(Km/h)","Fuel Efficiency");
+    for (int i =0; i<3; i++)
+    {
+        printf("%-6d | %-10s | %12d | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
+    }
 }
+
+
+void handleDelivery()
+{
+    showVehicles();
+    int vehiType = 0;
+    printf("Select a Vehicle type(1/ 2/ 3) : ");
+    scanf("%d", &vehiType);
+    getchar();
+
+}
+
+
+/*void showReport()
+{
+
+}*/
