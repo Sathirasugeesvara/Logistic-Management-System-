@@ -306,26 +306,34 @@ void inputDis()
         printf("You must add 2 cities to set distance\n");
         return;// cant add break to break this
     }
+
     showCity();
+
     printf("Enter the starting city number    : ");
     scanf("%d", &startIndex);
     getchar();
-    printf("Enter the destination city number : ");
-    scanf("%d", &destinationIndex);
-    getchar();
-
-    if(startIndex<1||startIndex>avlCityCount||destinationIndex<1||destinationIndex>avlCityCount)
+    if(startIndex<1||startIndex>avlCityCount)
     {
         printf("Invalid City Number...\n");
         return;
     }
+
+    printf("Enter the destination city number : ");
+    scanf("%d", &destinationIndex);
+    getchar();
+    if(destinationIndex<1||destinationIndex>avlCityCount)
+    {
+        printf("Invalid City Number...\n");
+        return;
+    }
+
     if(startIndex==destinationIndex)
     {
         printf("Distance must be 0, Because start and destination is same...\n");
         return;
     }
 
-    printf("Enter distance in kilometers : ");
+    printf("Enter distance in kilometers      : ");
     scanf("%f", &distance);
     getchar();
     if(distance<=0)
@@ -339,6 +347,7 @@ void inputDis()
 
         distanceBetweenCits[startIndex-1][startIndex-1]  = 0.0;
         distanceBetweenCits[destinationIndex-1][destinationIndex-1]  = 0.0;
+
         printf("Distance set to %s <--> %s = %.1f\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
     }
 }
@@ -357,6 +366,36 @@ void displyDisMatrx()
     {
         printf("\n");
         return;
+    }
+    printf("\n\t\t--Distance Matrix-- \n");
+    printf("%-12s","");
+    for(int x=0; x<avlCityCount; x++)
+    {
+        printf("%-12s", cityName[x]);
+    }
+    printf("\n");
+    for(int y=0; y<avlCityCount; y++)
+    {
+        printf("%-12s", cityName[y]);
+        for(int z=0; z<avlCityCount; z++)
+        {
+            if(y==z)
+            {
+                printf("%-12s","0");
+            }
+            else
+            {
+                if(distanceBetweenCits[y][z]<= 0)
+                {
+                    printf("%-12s","-");
+                }
+                else
+                {
+                    printf("%-12.2f",distanceBetweenCits[y][z]);
+                }
+            }
+        }
+        printf("\n");
     }
 
 }
