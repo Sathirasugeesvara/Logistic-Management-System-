@@ -9,6 +9,7 @@
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 float distanceBetweenCits[MAX_CITI][MAX_CITI];
+float deliveries[MAX_DELI];
 int avlCityCount = 0, deliCount = 0 ;
 
 struct vehicle
@@ -40,6 +41,17 @@ void showCity();
 void inputDis();
 void editDis();
 void displyDisMatrx();
+//for handleDelivery function
+int calcDeliveryCost();
+int calcDeliveryTime();
+int calcFuelConsumption();
+int calcFuelCost();
+int calcTotlOperCost();
+int calcProfit();
+int calcFinalChargeCus();
+void leastCostRoute(); //Least-Distance
+void miniOutput4ADelivery();
+
 
 
 
@@ -82,6 +94,7 @@ int main()
 }
 
 
+
 void mainMenuShow()
 {
     printf("\n1. City Management\n");
@@ -92,6 +105,7 @@ void mainMenuShow()
     printf("6. Exit\n");
     printf("Enter your choice : ");
 }
+
 
 
 void toHandleCities()
@@ -258,6 +272,7 @@ void showCity()
 }
 
 
+
 void handleDistance()
 {
     int choiceHD =0;
@@ -269,35 +284,37 @@ void handleDistance()
     printf("\n---Distance Management Section---");
     do
     {
-        printf("\n1. Input distance\n");
+        printf("\n1. Input and Edit distance\n");
         printf("2. Edit distance\n");
-        printf("3. Display Distance\n");
-        printf("4. Main menu\n");
+        printf("3. Main menu\n");
         printf("Enter your choice : ");
         scanf("%d", &choiceHD);
         getchar();
         switch(choiceHD)
         {
         case 1:
-            inputDis();
+            inputAndEditDis();
             break;
         case 2:
-            editDis();
-            break;
-        case 3:
             displyDisMatrx();
             break;
-        case 4:
+        case 3:
+
+            /*for(int i=0;i<avlCityCount;i++) // for safety distance from city to itself=0
+            {
+                distanceBetweenCits[i][i]=0;
+            }*/
+
             printf("Main menu...\n");
             break;
         default:
             printf("Invalid choice... Enter choice again...\n");
         }
     }
-    while(choiceHD!=4);
+    while(choiceHD!=3);
 }
 
-void inputDis()
+void inputAndEditDis()
 {
     int startIndex= 0, destinationIndex= 0 ;
     float distance=0.0;
@@ -309,7 +326,7 @@ void inputDis()
 
     showCity();
 
-    printf("Enter the starting city number    : ");
+    printf("Enter the source city number    : ");
     scanf("%d", &startIndex);
     getchar();
     if(startIndex<1||startIndex>avlCityCount)
@@ -351,15 +368,7 @@ void inputDis()
         printf("Distance set to %s <--> %s = %.1f\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
     }
 }
-void editDis()
-{
-    /*if(avlCityCount<2 && inputdistance<0)
-    {
-        printf("\n");
-        return;
-    }*/
-// if (input distance == o ) {print no distance to edit and first input distance }
-}
+
 void displyDisMatrx()
 {
     if(avlCityCount<2)
@@ -401,6 +410,7 @@ void displyDisMatrx()
 }
 
 
+
 void showVehicles()
 {
     printf("\n---Vehicle Informations---\n");
@@ -416,13 +426,45 @@ void showVehicles()
 }
 
 
+
 void handleDelivery()
 {
-    /*//showVehicles();
-    int vehiType = 0;
-    printf("Select a Vehicle type(1/ 2/ 3) : ");
-    scanf("%d", &vehiType);
-    getchar();*/
+//input from uder
+}
+int calcDeliveryCost()
+{
+
+}
+int calcDeliveryTime()
+{
+
+}
+int calcFuelConsumption()
+{
+
+}
+int calcFuelCost()
+{
+
+}
+int calcTotlOperCost()
+{
+
+}
+int calcProfit()
+{
+
+}
+int calcFinalChargeCus()
+{
+
+}
+void leastCostRoute()
+{
+
+}
+void miniOutput4ADelivery()
+{
 
 }
 
