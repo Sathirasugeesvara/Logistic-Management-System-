@@ -8,6 +8,7 @@
 #define FUEL_PRIZ 350
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
+float distanceBetweenCits[MAX_CITI][MAX_CITI];
 int avlCityCount = 0, deliCount = 0 ;
 
 struct vehicle
@@ -286,24 +287,77 @@ void handleDistance()
         case 3:
             displyDisMatrx();
             break;
-        case 4:printf("Main menu...\n");
+        case 4:
+            printf("Main menu...\n");
             break;
         default:
             printf("Invalid choice... Enter choice again...\n");
         }
-    }while(choiceHD!=4);
+    }
+    while(choiceHD!=4);
 }
 
 void inputDis()
 {
+    int startIndex= 0, destinationIndex= 0 ;
+    float distance=0.0;
+    if(avlCityCount<2)
+    {
+        printf("You must add 2 cities to set distance\n");
+        return;// cant add break to break this
+    }
+    showCity();
+    printf("Enter the starting city number    : ");
+    scanf("%d", &startIndex);
+    getchar();
+    printf("Enter the destination city number : ");
+    scanf("%d", &destinationIndex);
+    getchar();
 
+    if(startIndex<1||startIndex>avlCityCount||destinationIndex<1||destinationIndex>avlCityCount)
+    {
+        printf("Invalid City Number...\n");
+        return;
+    }
+    if(startIndex==destinationIndex)
+    {
+        printf("Distance must be 0, Because start and destination is same...\n");
+        return;
+    }
+
+    printf("Enter distance in kilometers : ");
+    scanf("%f", &distance);
+    getchar();
+    if(distance<=0)
+    {
+        printf("Distance must be positive integer...\n");
+    }
+    else
+    {
+        distanceBetweenCits[startIndex-1][destinationIndex-1]  = distance;
+        distanceBetweenCits[destinationIndex-1][startIndex-1]  = distance;
+
+        distanceBetweenCits[startIndex-1][startIndex-1]  = 0.0;
+        distanceBetweenCits[destinationIndex-1][destinationIndex-1]  = 0.0;
+        printf("Distance set to %s <--> %s = %.1f\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
+    }
 }
 void editDis()
 {
+    /*if(avlCityCount<2 && inputdistance<0)
+    {
+        printf("\n");
+        return;
+    }*/
 // if (input distance == o ) {print no distance to edit and first input distance }
 }
 void displyDisMatrx()
 {
+    if(avlCityCount<2)
+    {
+        printf("\n");
+        return;
+    }
 
 }
 
@@ -319,7 +373,7 @@ void showVehicles()
     printf("Press Enter to back...\n");
     getchar(); //clear  new line
     int b;
-    while ((b = getchar())!='\n'&&b!=EOF){}
+    while ((b = getchar())!='\n'&&b!=EOF) {}
 }
 
 
