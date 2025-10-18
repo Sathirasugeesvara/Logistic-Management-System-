@@ -8,7 +8,7 @@
 #define FUEL_PRIZ 350
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
-int count = 0 ;
+int avlCityCount = 0, deliCount = 0 ;
 
 struct vehicle
 {
@@ -36,6 +36,10 @@ void renameCity();
 void removeCity();
 void showCity();
 //for distance management functions
+void inputDis();
+void editDis();
+void displyDisMatrx();
+
 
 
 int main()
@@ -53,7 +57,7 @@ int main()
             toHandleCities();
             break;
         case 2:
-            //handleDistance();
+            handleDistance();
             break;
         case 3:
             showVehicles();
@@ -91,7 +95,7 @@ void mainMenuShow()
 
 void toHandleCities()
 {
-    printf("\nCity Management Section\n");
+    printf("\n---City Management Section---");
     int ChoiceTHC=0;
 
     do
@@ -132,7 +136,7 @@ void toHandleCities()
 void addCity()
 {
     char tempCity[20];
-    if(count >=MAX_CITI)// if array full
+    if(avlCityCount >=MAX_CITI)// if array full
     {
         printf("Array is Full... You can't add...\n");
     }
@@ -142,7 +146,7 @@ void addCity()
         fgets(tempCity, sizeof(tempCity),stdin);
         tempCity[strcspn(tempCity, "\n")] = 0;
         int avalbl =0;//if new added city availabale chack it
-        for(int j=0; j<count; j++)
+        for(int j=0; j<avlCityCount; j++)
         {
             if(strcmp(cityName[j],tempCity)==0)
             {
@@ -156,8 +160,8 @@ void addCity()
         }
         else
         {
-            strcpy(cityName[count],tempCity);
-            count++ ;
+            strcpy(cityName[avlCityCount],tempCity);
+            avlCityCount++ ;
             printf("City added successfully\n");
         }
     }
@@ -167,7 +171,7 @@ void renameCity()
 {
     int index = 0;
     char tempCity[20];
-    if(count==0)
+    if(avlCityCount==0)
     {
         printf("No available Cities yet...\n\n");
     }
@@ -176,7 +180,7 @@ void renameCity()
         printf("Enter city index to rename city : \n");
         scanf("%d", &index);
         getchar();
-        if(index<1||index>count)
+        if(index<1||index>avlCityCount)
         {
             printf("Invalid index...\n\n");
         }
@@ -187,7 +191,7 @@ void renameCity()
             tempCity[strcspn(tempCity, "\n")]=0;
 
             int avalbl=0;//if new name available in city list check it
-            for(int j; j<count; j++)
+            for(int j; j<avlCityCount; j++)
             {
                 if(j!= (index-1)&&strcmp(cityName[j],tempCity)==0)
                 {
@@ -211,7 +215,7 @@ void renameCity()
 void removeCity()
 {
     int index=0;
-    if(count==0)
+    if(avlCityCount==0)
     {
         printf("No available Cities yet...\n\n");
     }
@@ -220,17 +224,17 @@ void removeCity()
         printf("Enter city index to remove city : ");
         scanf("%d", &index);
         getchar();
-        if(index<1||index>count)
+        if(index<1||index>avlCityCount)
         {
             printf("Invalid index...\n\n");
         }
         else
         {
-            for(int j=index-1; j<count-1; j++)
+            for(int j=index-1; j<avlCityCount-1; j++)
             {
                 strcpy(cityName[j], cityName[j+1]);
             }
-            count--;
+            avlCityCount--;
             printf("Removed City successfully...\n\n");
         }
     }
@@ -238,25 +242,70 @@ void removeCity()
 
 void showCity()
 {
-    if(count==0)
+    if(avlCityCount==0)
     {
         printf("No available Cities yet...\n\n");
     }
     else
     {
         printf("\n---City List---\n");
-        for (int i=0; i<count; i++)
+        for (int i=0; i<avlCityCount; i++)
         {
-            printf("%d\t%s\n",i+1, cityName[i]);
+            printf("%2d\t |   %s\n",i+1, cityName[i]);
         }
     }
 }
 
 
-/*void handleDistance()
+void handleDistance()
+{
+    int choiceHD =0;
+    if(avlCityCount==0)
+    {
+        printf("No Cities added yet...\n");
+        return;  //no loop here so can't add break
+    }
+    printf("\n---Distance Management Section---");
+    do
+    {
+        printf("\n1. Input distance\n");
+        printf("2. Edit distance\n");
+        printf("3. Display Distance\n");
+        printf("4. Main menu\n");
+        printf("Enter your choice : ");
+        scanf("%d", &choiceHD);
+        getchar();
+        switch(choiceHD)
+        {
+        case 1:
+            inputDis();
+            break;
+        case 2:
+            editDis();
+            break;
+        case 3:
+            displyDisMatrx();
+            break;
+        case 4:printf("Main menu...\n");
+            break;
+        default:
+            printf("Invalid choice... Enter choice again...\n");
+        }
+    }while(choiceHD!=4);
+}
+
+void inputDis()
 {
 
-}*/
+}
+void editDis()
+{
+// if (input distance == o ) {print no distance to edit and first input distance }
+}
+void displyDisMatrx()
+{
+
+}
 
 
 void showVehicles()
@@ -267,21 +316,25 @@ void showVehicles()
     {
         printf("%-6d | %-10s | %12d | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
     }
+    printf("Press Enter to back...\n");
+    getchar(); //clear  new line
+    int b;
+    while ((b = getchar())!='\n'&&b!=EOF){}
 }
 
 
 void handleDelivery()
 {
-    showVehicles();
+    /*//showVehicles();
     int vehiType = 0;
     printf("Select a Vehicle type(1/ 2/ 3) : ");
     scanf("%d", &vehiType);
-    getchar();
+    getchar();*/
 
 }
 
 
-/*void showReport()
+void showReport()
 {
 
-}*/
+}
