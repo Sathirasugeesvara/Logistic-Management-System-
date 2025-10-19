@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define MAX_CITI 30
 #define MAX_NAME_SIZE 20
 #define MAX_DELI 50
-#define FUEL_PRIZ 310
+#define FUEL_PRIZ 310.0f
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 float distanceBetweenCits[MAX_CITI][MAX_CITI];
@@ -42,8 +43,8 @@ void RemoveDistncsWhenCityRemove(int index);
 void inputAndEditDis();
 void displyDisMatrx();
 //for handle delivery function
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType);
-
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen);
+float findLeastCostRoute();
 
 int main()
 {
@@ -299,6 +300,7 @@ void RemoveDistncsWhenCityRemove(int index)
 }
 
 
+
 void handleDistance()
 {
     int choiceHD =0;
@@ -500,7 +502,7 @@ void handleDelivery()
     getchar();
     if(vehiType==1)
     {
-        if(weight>1000.0)
+        if(weight>1000.0||weight<0)
         {
             printf("Weight is higher than capacity...\n");
             return;
@@ -508,7 +510,7 @@ void handleDelivery()
     }
     if(vehiType==2)
     {
-        if(weight>5000.0)
+        if(weight>5000.0||weight<0)
         {
             printf("Weight is higher than capacity...\n");
             return;
@@ -516,52 +518,68 @@ void handleDelivery()
     }
     if(vehiType==3)
     {
-        if(weight>10000.0)
+        if(weight>10000.0||weight<0)
         {
             printf("Weight is higher than capacity...\n");
             return;
         }
     }
 
-// Finding The Least-Cost Route (Least-Distance)
-    calculAndMiniStat(sourceIndex, destiIndex,weight,vehiType);
-}
-/*• Distance D (from distance matrix)
-• Weight W (kg)
-• Rate per km R (from vehicle type)
-• Vehicle speed S (km/h)
-• Efficiency E (km/l)
-• Fuel price F (e.g., 310 LKR per liter) */
-
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType)
-{
-
-
-
-
-
-
-
-
-
-    if(deliCount==0)
+    int shortDis[MAX_CITI];
+    int shortLen=0;
+    int distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,shortLen);
+    if(distance==-1||distance<=0)
     {
-        printf("No deliveries added yet...\n");
+        printf("Please check distance matrix between %s and %s... No route found\n",cityName[sourceIndex-1],cityName[destiIndex-1]);
         return;
     }
+    //printShortDis(shortDis,shortLen);
+    printf("Minimum distance : %d \n", distance);
 
-    printf("====================================================== \n");
+    calculAndMiniStat(sourceIndex-1, destiIndex-1,weight,vehiType-1,distance,shortDis,shortLen);
+}
+
+float findLeastCostRoute()
+{
+
+}
+
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen)
+{
+    float W=weight;
+    float D=(float)distance;
+    float R=vehi[vehiType].rate;
+    float S=vehi[vehiType].avgSpeed;
+    float E=vehi[vehiType].fuelEfficincy;
+    float F=FUEL_PRIZ;
+
+//calculations
+    float deliveryCost=D*R*(1.0f+(W/10000.0f));
+    float estimaDeliTime=D/S;
+    float fuelUsed=D/E;
+    float fuelCost=fuelUsed*F;
+    float TotlOperaCost=deliveryCost+fuelCost;
+    float profit=TotlOperaCost*0.25;
+    float finlCharCustomer=profit+TotlOperaCost;
+
+
+    printf("\n\n====================================================== \n");
     printf("DELIVERY COST ESTIMATION\n");
     printf("------------------------------------------------------\n");
-    //printf("From\t: %s\n", );
-    //printf("To  \t: %s\n", );
-    //printf("Minimum Distance: %.2f\n", );
-    //printf("Vehicle  : \n");
-    //printf("Weight   : \n");
+    printf("From\t: %s\n", cityName[sourceIndex]);
+    printf("To  \t: %s\n", cityName[destiIndex]);
+    printf("Minimum Distance: %.2f\n", D);
+    printf("Vehicle  : %s\n", vehi[vehiType].type);
+    printf("Weight   : %.2f kg\n", W);
     printf("------------------------------------------------------\n");
-
-
-    printf("======================================================");
+    printf("Base Cost: %.2f*%.2f*(1+%.2f/10000) = %.2f LKR\n", D, R, W, deliveryCost);
+    printf("Fuel Used : %.2f L\n", fuelUsed);
+    printf("Fuel Cost : %.2f LKR\n", fuelCost);
+    printf("Operational Cost : %.2f LKR\n", TotlOperaCost);
+    printf("Profit : %.2f LKR\n", profit);
+    printf("Customer Charge : %.2f LKR\n", finlCharCustomer);
+    printf("Estimated Time : %.2f Hours\n", estimaDeliTime);
+    printf("======================================================\n\n");
 }
 
 
@@ -608,7 +626,5 @@ void showReport()
         break;
     default:
         printf("Invalid Choice...\n");
-
     }
-
 }
