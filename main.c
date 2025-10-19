@@ -5,7 +5,7 @@
 #define MAX_CITI 30
 #define MAX_NAME_SIZE 20
 #define MAX_DELI 50
-#define FUEL_PRIZ 300
+#define FUEL_PRIZ 310
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 float distanceBetweenCits[MAX_CITI][MAX_CITI];
@@ -75,7 +75,7 @@ int main()
             handleDelivery();
             break;
         case 5:
-            //showReport();
+            showReport();
             break;
         case 6:
             printf("Exiting...\n\n");
@@ -464,6 +464,7 @@ void handleDelivery()
 
     printf("Enter source city number      : ");
     scanf("%d", &sourceIndex);
+    getchar();
     if(sourceIndex<1||sourceIndex>avlCityCount)
     {
         printf("Invalid source city number...\n");
@@ -472,6 +473,7 @@ void handleDelivery()
 
     printf("Enter destination city number : ");
     scanf("%d", &destiIndex);
+    getchar();
     if(destiIndex<1||destiIndex>avlCityCount)
     {
         printf("Invalid destination city number...\n");
@@ -486,6 +488,7 @@ void handleDelivery()
     showVehicles();
     printf("Choose a vehicle type --> 1 for Van, 2 for Truck, 3 for Lorry: ");
     scanf("%d", &vehiType);
+    getchar();
     if(vehiType<1||vehiType>3)
     {
         printf("Invalid vehicle index...\n");
@@ -494,6 +497,7 @@ void handleDelivery()
 
     printf("Enter the weight in kg        : ");
     scanf("%f", &weight);
+    getchar();
     if(vehiType==1)
     {
         if(weight>1000.0)
@@ -519,8 +523,8 @@ void handleDelivery()
         }
     }
 
-//
-calculAndMiniStat(sourceIndex, destiIndex,weight,vehiType);
+// Finding The Least-Cost Route (Least-Distance)
+    calculAndMiniStat(sourceIndex, destiIndex,weight,vehiType);
 }
 /*• Distance D (from distance matrix)
 • Weight W (kg)
@@ -528,14 +532,83 @@ calculAndMiniStat(sourceIndex, destiIndex,weight,vehiType);
 • Vehicle speed S (km/h)
 • Efficiency E (km/l)
 • Fuel price F (e.g., 310 LKR per liter) */
+
 void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType)
 {
 
+
+
+
+
+
+
+
+
+    if(deliCount==0)
+    {
+        printf("No deliveries added yet...\n");
+        return;
+    }
+
+    printf("====================================================== \n");
+    printf("DELIVERY COST ESTIMATION\n");
+    printf("------------------------------------------------------\n");
+    //printf("From\t: %s\n", );
+    //printf("To  \t: %s\n", );
+    //printf("Minimum Distance: %.2f\n", );
+    //printf("Vehicle  : \n");
+    //printf("Weight   : \n");
+    printf("------------------------------------------------------\n");
+
+
+    printf("======================================================");
 }
 
 
 
 void showReport()
 {
+    if(deliCount==0)
+    {
+        printf("No deliveries added yet...\n");
+        return;
+    }
+
+    int choiceREPO = 0;
+    printf("\n----Report Section----\n");
+    printf("1. Total Deliveries Completed\n");
+    printf("2. Total Distance Covered\n");
+    printf("3. Average Delivery Time\n");
+    printf("4. Total Revenue and Profit \n");
+    printf("5. Longest and Shortest Routes Completed\n");
+    printf("6. Main Menu\n");
+    printf("Enter Your choice : ");
+    scanf("%d", &choiceREPO);
+    getchar();
+
+    switch(choiceREPO)
+    {
+    case 1:
+
+        break;
+    case 2:
+
+        break;
+    case 3:
+
+        break;
+    case 4:
+
+        break;
+    case 5:
+
+        break;
+    case 6:
+        printf("Main Menu...\n");
+        break;
+    default:
+        printf("Invalid Choice...\n");
+
+    }
 
 }
