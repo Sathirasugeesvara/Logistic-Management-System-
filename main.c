@@ -5,7 +5,7 @@
 #define MAX_CITI 30
 #define MAX_NAME_SIZE 20
 #define MAX_DELI 50
-#define FUEL_PRIZ 350
+#define FUEL_PRIZ 300
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 float distanceBetweenCits[MAX_CITI][MAX_CITI];
@@ -37,22 +37,12 @@ void addCity();
 void renameCity();
 void removeCity();
 void showCity();
-//for distance management functions
-void inputDis();
-void editDis();
+void RemoveDistncsWhenCityRemove(int index);
+//for distance management function
+void inputAndEditDis();
 void displyDisMatrx();
-//for handleDelivery function
-int calcDeliveryCost();
-int calcDeliveryTime();
-int calcFuelConsumption();
-int calcFuelCost();
-int calcTotlOperCost();
-int calcProfit();
-int calcFinalChargeCus();
-void leastCostRoute(); //Least-Distance
-void miniOutput4ADelivery();
-
-
+//for handle delivery function
+void calculAndMiniStat();
 
 
 int main()
@@ -76,10 +66,10 @@ int main()
             showVehicles();
             break;
         case 4:
-            handleDelivery();
+            //handleDelivery();
             break;
         case 5:
-            //showReport();
+            showReport();
             break;
         case 6:
             printf("Exiting...\n\n");
@@ -192,7 +182,7 @@ void renameCity()
     }
     else
     {
-        printf("Enter city index to rename city : \n");
+        printf("Enter city index to rename city : ");
         scanf("%d", &index);
         getchar();
         if(index<1||index>avlCityCount)
@@ -249,6 +239,7 @@ void removeCity()
             {
                 strcpy(cityName[j], cityName[j+1]);
             }
+            RemoveDistncsWhenCityRemove(index-1);
             avlCityCount--;
             printf("Removed City successfully...\n\n");
         }
@@ -271,6 +262,33 @@ void showCity()
     }
 }
 
+void RemoveDistncsWhenCityRemove(int index)
+{
+    int n=avlCityCount;
+    if(index<0||index>=n)
+    {
+        return;
+    }
+    for (int i = index; i < n - 1; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            distanceBetweenCits[i][j] = distanceBetweenCits[i + 1][j];
+        }
+    }
+    for (int j = index; j < n - 1; j++)
+    {
+        for (int i = 0; i < n - 1; i++)
+        {
+            distanceBetweenCits[i][j] = distanceBetweenCits[i][j + 1];
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        distanceBetweenCits[i][n - 1] = 0;
+        distanceBetweenCits[n - 1][i] = 0;
+    }
+}
 
 
 void handleDistance()
@@ -285,7 +303,7 @@ void handleDistance()
     do
     {
         printf("\n1. Input and Edit distance\n");
-        printf("2. Edit distance\n");
+        printf("2. Show distance table\n");
         printf("3. Main menu\n");
         printf("Enter your choice : ");
         scanf("%d", &choiceHD);
@@ -300,10 +318,10 @@ void handleDistance()
             break;
         case 3:
 
-            /*for(int i=0;i<avlCityCount;i++) // for safety distance from city to itself=0
+            for(int i=0; i<avlCityCount; i++) // for safety distance from city to itself=0
             {
                 distanceBetweenCits[i][i]=0;
-            }*/
+            }
 
             printf("Main menu...\n");
             break;
@@ -326,7 +344,7 @@ void inputAndEditDis()
 
     showCity();
 
-    printf("Enter the source city number    : ");
+    printf("Enter the source city number     : ");
     scanf("%d", &startIndex);
     getchar();
     if(startIndex<1||startIndex>avlCityCount)
@@ -410,6 +428,11 @@ void displyDisMatrx()
 }
 
 
+/*void whenRenamCity()
+{
+
+}*/
+
 
 void showVehicles()
 {
@@ -427,46 +450,39 @@ void showVehicles()
 
 
 
-void handleDelivery()
+/*void handleDelivery()
 {
-//input from uder
-}
-int calcDeliveryCost()
-{
+    int sourceIndex=0,destiIndex=0,vehiType=0;
+    float weight=0;
+
+    if(avlCityCount<2)
+    {
+        printf("Add more than 2 cities...\n");
+        return;
+    }
+
+    showCity();
+
+    printf("Enter source city number      : ");
+    scanf("%d", &sourceIndex);
+    printf("Enter destination city number : ");
+    scanf("%d", &destiIndex);
+    printf("Enter the weight in kg        : ");
+    scanf("%f", &weight);
+
+    showVehicles();// vehitype and city indexes are valid? and weight<=capasity?
+    //Source ≠ Destination
+    printf("1 for Van, 2 for Truck, 3 for Lorry: ");
+    scanf("%d", &vehiType);
+
+
 
 }
-int calcDeliveryTime()
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType)
 {
+    if()
+}*/
 
-}
-int calcFuelConsumption()
-{
-
-}
-int calcFuelCost()
-{
-
-}
-int calcTotlOperCost()
-{
-
-}
-int calcProfit()
-{
-
-}
-int calcFinalChargeCus()
-{
-
-}
-void leastCostRoute()
-{
-
-}
-void miniOutput4ADelivery()
-{
-
-}
 
 
 void showReport()
