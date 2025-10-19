@@ -42,7 +42,7 @@ void RemoveDistncsWhenCityRemove(int index);
 void inputAndEditDis();
 void displyDisMatrx();
 //for handle delivery function
-void calculAndMiniStat();
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType);
 
 
 int main()
@@ -64,12 +64,18 @@ int main()
             break;
         case 3:
             showVehicles();
+
+            printf("Press Enter to back...\n");
+            getchar(); //clear  new line
+            int b;
+            while ((b = getchar())!='\n'&&b!=EOF) {}
+
             break;
         case 4:
-            //handleDelivery();
+            handleDelivery();
             break;
         case 5:
-            showReport();
+            //showReport();
             break;
         case 6:
             printf("Exiting...\n\n");
@@ -182,6 +188,7 @@ void renameCity()
     }
     else
     {
+        showCity();
         printf("Enter city index to rename city : ");
         scanf("%d", &index);
         getchar();
@@ -226,6 +233,7 @@ void removeCity()
     }
     else
     {
+        showCity();
         printf("Enter city index to remove city : ");
         scanf("%d", &index);
         getchar();
@@ -344,7 +352,7 @@ void inputAndEditDis()
 
     showCity();
 
-    printf("Enter the source city number     : ");
+    printf("Enter the source city number      : ");
     scanf("%d", &startIndex);
     getchar();
     if(startIndex<1||startIndex>avlCityCount)
@@ -428,11 +436,6 @@ void displyDisMatrx()
 }
 
 
-/*void whenRenamCity()
-{
-
-}*/
-
 
 void showVehicles()
 {
@@ -442,15 +445,11 @@ void showVehicles()
     {
         printf("%-6d | %-10s | %12d | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
     }
-    printf("Press Enter to back...\n");
-    getchar(); //clear  new line
-    int b;
-    while ((b = getchar())!='\n'&&b!=EOF) {}
 }
 
 
 
-/*void handleDelivery()
+void handleDelivery()
 {
     int sourceIndex=0,destiIndex=0,vehiType=0;
     float weight=0;
@@ -465,23 +464,74 @@ void showVehicles()
 
     printf("Enter source city number      : ");
     scanf("%d", &sourceIndex);
+    if(sourceIndex<1||sourceIndex>avlCityCount)
+    {
+        printf("Invalid source city number...\n");
+        return;
+    }
+
     printf("Enter destination city number : ");
     scanf("%d", &destiIndex);
+    if(destiIndex<1||destiIndex>avlCityCount)
+    {
+        printf("Invalid destination city number...\n");
+        return;
+    }
+    if(destiIndex==sourceIndex)
+    {
+        printf("You entered same city for source and destination\n");
+        return;
+    }
+
+    showVehicles();
+    printf("Choose a vehicle type --> 1 for Van, 2 for Truck, 3 for Lorry: ");
+    scanf("%d", &vehiType);
+    if(vehiType<1||vehiType>3)
+    {
+        printf("Invalid vehicle index...\n");
+        return;
+    }
+
     printf("Enter the weight in kg        : ");
     scanf("%f", &weight);
+    if(vehiType==1)
+    {
+        if(weight>1000.0)
+        {
+            printf("Weight is higher than capacity...\n");
+            return;
+        }
+    }
+    if(vehiType==2)
+    {
+        if(weight>5000.0)
+        {
+            printf("Weight is higher than capacity...\n");
+            return;
+        }
+    }
+    if(vehiType==3)
+    {
+        if(weight>10000.0)
+        {
+            printf("Weight is higher than capacity...\n");
+            return;
+        }
+    }
 
-    showVehicles();// vehitype and city indexes are valid? and weight<=capasity?
-    //Source ≠ Destination
-    printf("1 for Van, 2 for Truck, 3 for Lorry: ");
-    scanf("%d", &vehiType);
-
-
-
+//
+calculAndMiniStat(sourceIndex, destiIndex,weight,vehiType);
 }
+/*• Distance D (from distance matrix)
+• Weight W (kg)
+• Rate per km R (from vehicle type)
+• Vehicle speed S (km/h)
+• Efficiency E (km/l)
+• Fuel price F (e.g., 310 LKR per liter) */
 void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType)
 {
-    if()
-}*/
+
+}
 
 
 
