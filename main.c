@@ -44,7 +44,8 @@ void inputAndEditDis();
 void displyDisMatrx();
 //for handle delivery function
 void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen);
-float findLeastCostRoute();
+float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int shortLen);
+void printShortDis(int shortDis[],int shortLen);
 
 int main()
 {
@@ -488,7 +489,7 @@ void handleDelivery()
     }
 
     showVehicles();
-    printf("Choose a vehicle type --> 1 for Van, 2 for Truck, 3 for Lorry: ");
+    printf("Enter the vehicle number : ");
     scanf("%d", &vehiType);
     getchar();
     if(vehiType<1||vehiType>3)
@@ -527,21 +528,43 @@ void handleDelivery()
 
     int shortDis[MAX_CITI];
     int shortLen=0;
-    int distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,shortLen);
-    if(distance==-1||distance<=0)
+    int distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,&shortLen);//here distance int or float...........................
+    if(distance==-1)
     {
         printf("Please check distance matrix between %s and %s... No route found\n",cityName[sourceIndex-1],cityName[destiIndex-1]);
         return;
     }
-    //printShortDis(shortDis,shortLen);
+    printf("Short distance route : ");
+    printShortDis(shortDis,shortLen);
     printf("Minimum distance : %d \n", distance);
 
     calculAndMiniStat(sourceIndex-1, destiIndex-1,weight,vehiType-1,distance,shortDis,shortLen);
 }
 
-float findLeastCostRoute()
+float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int shortLen)
 {
+    float distanceShortRoute=0;
+    //distance float or int, change one ............................................................................if
 
+    return distanceShortRoute;
+}
+
+void printShortDis(int shortDis[],int shortLen)
+{
+    if(shortLen<=0)
+    {
+        printf("No path \n");
+        return;
+    }
+    for(int i=0; i<shortLen; i++)
+    {
+        //printf("%s", cit).........................................................................................
+        if(i<shortLen-1)
+        {
+            printf(" -> ");
+        }
+    }
+    printf("\n");
 }
 
 void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen)
@@ -580,6 +603,13 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
     printf("Customer Charge : %.2f LKR\n", finlCharCustomer);
     printf("Estimated Time : %.2f Hours\n", estimaDeliTime);
     printf("======================================================\n\n");
+
+    if(deliCount>=MAX_DELI)
+    {
+        printf("Delivery history full...Not saved...\n\n");
+        return;
+    }
+    //.................................................................................................................
 }
 
 
@@ -592,39 +622,11 @@ void showReport()
         return;
     }
 
-    int choiceREPO = 0;
     printf("\n----Report Section----\n");
-    printf("1. Total Deliveries Completed\n");
-    printf("2. Total Distance Covered\n");
-    printf("3. Average Delivery Time\n");
-    printf("4. Total Revenue and Profit \n");
-    printf("5. Longest and Shortest Routes Completed\n");
-    printf("6. Main Menu\n");
-    printf("Enter Your choice : ");
-    scanf("%d", &choiceREPO);
-    getchar();
-
-    switch(choiceREPO)
-    {
-    case 1:
-
-        break;
-    case 2:
-
-        break;
-    case 3:
-
-        break;
-    case 4:
-
-        break;
-    case 5:
-
-        break;
-    case 6:
-        printf("Main Menu...\n");
-        break;
-    default:
-        printf("Invalid Choice...\n");
-    }
+    printf("\nTotal Deliveries Completed : %d\n", deliCount);
+    printf("Total Distance Covered : %.2f km \n", ................);
+    printf("Average Delivery Time : %.2f hours \n", ................ );
+    printf("Total Revenue and Profit : %.2f LKR \n", ................ );
+    printf("Longest Route Completed\n");
+    printf("Shortest Route Completed\n");
 }
