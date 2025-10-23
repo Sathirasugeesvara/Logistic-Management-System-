@@ -14,6 +14,9 @@ float distanceBetweenCits[MAX_CITI][MAX_CITI];
 float deliveries[MAX_DELI];
 int avlCityCount = 0, deliCount = 0 ;
 
+int goodWay[MAX_CITI];
+int goodLenth, goodestDistance ;
+
 struct vehicle
 {
     char type[20];
@@ -30,7 +33,7 @@ struct vehicle vehi[3] = {{"Van", 1000, 30.0, 60.0, 12.0},{"Truck", 5000, 40.0, 
 void mainMenuShow();
 void toHandleCities();
 void handleDistance();
-void showVehicles();
+void showVehicles();//......................................
 void handleDelivery();
 void showReport();
 
@@ -44,9 +47,10 @@ void RemoveDistncsWhenCityRemove(int index);
 void inputAndEditDis();
 void displyDisMatrx();
 //for handle delivery function
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen);
-float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int shortLen);
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,float distance,int shortDis[],int shortLen);
+float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen);
 void printShortDis(int shortDis[],int shortLen);
+int totalDistanceCovered(int way[],int n);
 
 int main()
 {
@@ -451,7 +455,7 @@ void showVehicles()
     }
 }
 
-//hanlde only 50 deliveries
+
 
 void handleDelivery()
 {
@@ -461,6 +465,11 @@ void handleDelivery()
     if(avlCityCount<2)
     {
         printf("Add more than 2 cities...\n");
+        return;
+    }
+    if(deliCount>50)
+    {
+        printf("Out of maximum deliveries...\n");
         return;
     }
 
@@ -529,7 +538,7 @@ void handleDelivery()
 
     int shortDis[MAX_CITI];
     int shortLen=0;
-    int distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,&shortLen);//here distance int or float...........................
+    float distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,&shortLen);
     if(distance==-1)
     {
         printf("Please check distance matrix between %s and %s... No route found\n",cityName[sourceIndex-1],cityName[destiIndex-1]);
@@ -537,17 +546,80 @@ void handleDelivery()
     }
     printf("Short distance route : ");
     printShortDis(shortDis,shortLen);
-    printf("Minimum distance : %d \n", distance);
+    printf("Minimum distance : %.2f km\n", distance);
 
     calculAndMiniStat(sourceIndex-1, destiIndex-1,weight,vehiType-1,distance,shortDis,shortLen);
+
+    deliCount++;
 }
 
-float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int shortLen)
+float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen)
 {
-    float distanceShortRoute=0;
-    //distance float or int, change one ............................................................................if
-
-    return distanceShortRoute;
+    if(avlCityCount<=2)
+    {
+        shortDis[0]=sourceIndex;
+        shortDis[1]=destiIndex;
+        *shortLen=2;
+        return distanceBetweenCits[sourceIndex][destiIndex];
+    }
+    int between[MAX_CITI];
+    int z=0;
+    for(int j=0; j<avlCityCount; j++)
+    {
+        if (j != sourceIndex && j != destiIndex)
+        {
+            between[z++]=j;
+        }
+    }
+    if(z>2)
+    {
+        z=2;
+    }
+    goodestDistance=INF;
+    goodLenth=0;
+    if(z==0)
+    {
+        int route[2]= {sourceIndex,destiIndex};
+        int dis=totalDistanceCovered(route,2);
+        if(dis<goodestDistance)
+        {
+            goodestDistance=dis;
+            memcpy(goodWay,route,2*sizeof(int));
+            goodLenth=2;
+        }
+    }
+    else if(z==1)
+    {
+        int route[3]= {sourceIndex,between[0],destiIndex};
+        int dis= totalDistanceCovered(route,3);
+        if(dis<goodestDistance)
+        {
+            goodestDistance=dis;
+            memcpy(goodWay,route,3*sizeof(int));
+            goodLenth=3;
+        }
+    }
+    else
+    {
+        int temp[2]= {between[0],between[1]};
+        for(int i=0; i<2; i++)
+        {
+            int route[4]= {sourceIndex,temp[i],temp[1-i],destiIndex};
+            int dis=totalDistanceCovered(route,4);
+            if(dis<goodestDistance)
+            {
+                goodestDistance=dis;
+                memcpy(goodWay,route,4*sizeof(int));
+                goodLenth=4;
+            }
+        }
+    }
+    for(int j=0; j<goodLenth; j++)
+    {
+        shortDis[j]=goodWay[j];
+    }
+    *shortLen=goodLenth;
+    return (goodestDistance==INF) ?-1:goodestDistance;
 }
 
 void printShortDis(int shortDis[],int shortLen)
@@ -568,10 +640,10 @@ void printShortDis(int shortDis[],int shortLen)
     printf("\n");
 }
 
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen)
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,float distance,int shortDis[],int shortLen)
 {
     float W=weight;
-    float D=(float)distance;
+    float D=distance;
     float R=vehi[vehiType].rate;
     float S=vehi[vehiType].avgSpeed;
     float E=vehi[vehiType].fuelEfficincy;
@@ -631,10 +703,10 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
     */
 }
 
-int totalDistanceCovered(int way[])
+int totalDistanceCovered(int way[],int n)
 {
     int sum =0;
-    for(int i=0; i<avlCityCount-1,i++)
+    for(int i=0; i<n-1; i++)
     {
         int d= distanceBetweenCits[way[i]][way[i+1]];
         if (d<=0)
@@ -647,6 +719,7 @@ int totalDistanceCovered(int way[])
 }
 
 
+
 void showReport()
 {
     if(deliCount==0)
@@ -657,9 +730,9 @@ void showReport()
 
     printf("\n----Report Section----\n");
     printf("\nTotal Deliveries Completed : %d\n", deliCount);
-    printf("Total Distance Covered : %.2f km \n", ................);
+    /*printf("Total Distance Covered : %.2f km \n", ................);
     printf("Average Delivery Time : %.2f hours \n", ................ );
     printf("Total Revenue and Profit : %.2f LKR \n", ................ );
     printf("Longest Route Completed\n");
-    printf("Shortest Route Completed\n");
+    printf("Shortest Route Completed\n");*/
 }
