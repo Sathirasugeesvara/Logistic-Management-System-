@@ -55,3 +55,7 @@ dkms.conf
 *.dwo
 *.cbp
 *.depend
+
+bin/
+obj/
+*.exe

@@ -7,6 +7,7 @@
 #define MAX_NAME_SIZE 20
 #define MAX_DELI 50
 #define FUEL_PRIZ 310.0f
+#define INF 1000000000
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
 float distanceBetweenCits[MAX_CITI][MAX_CITI];
@@ -450,7 +451,7 @@ void showVehicles()
     }
 }
 
-
+//hanlde only 50 deliveries
 
 void handleDelivery()
 {
@@ -558,7 +559,7 @@ void printShortDis(int shortDis[],int shortLen)
     }
     for(int i=0; i<shortLen; i++)
     {
-        //printf("%s", cit).........................................................................................
+        printf("%s", cityName[shortDis[i]]);
         if(i<shortLen-1)
         {
             printf(" -> ");
@@ -609,9 +610,41 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
         printf("Delivery history full...Not saved...\n\n");
         return;
     }
-    //.................................................................................................................
+
+    /*
+    Delivery d;
+    d.source=sourceindex;
+    d.destination=destinationindex;
+    d.vehicletype=vehicleindex;
+    d.weight=W;
+    d.distance=D;
+    d.cost=basecost;
+    d.fuelused=fuelused;
+    d.fuelcost=fuelcost;
+    d.totalcosr=totaloperatiancost;
+    d.profit=profit;
+    d.custemercharge=customercharge;
+    d.time=estimatedtime;
+
+    deliveries[deliveryCount++]=d;
+    printf("Delivery saved as record #%d. \n", deliveryCount);
+    */
 }
 
+int totalDistanceCovered(int way[])
+{
+    int sum =0;
+    for(int i=0; i<avlCityCount-1,i++)
+    {
+        int d= distanceBetweenCits[way[i]][way[i+1]];
+        if (d<=0)
+        {
+            return INF;
+        }
+        sum += d;
+    }
+    return sum;
+}
 
 
 void showReport()
