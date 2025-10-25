@@ -65,15 +65,19 @@ int totalDistanceCovered(int way[],int n);
 void addDeliveryRecord(char src[],char dest[],int distance,float time,float cutomerCharge,float profitChrge);
 
 //for file handling
-void saveWaysToFile();
-void saveDeliveriesToFile();
-void getWaysFromFile();
-void getDeliveriesFromFile();
+void saveWaysToFile(const char *filename);
+void saveDeliveriesToFile(const char *filename);
+void getWaysFromFile(const char *filename);
+void getDeliveriesFromFile(const char *filename);
 
 int main()
 {
     printf("LOGISTICS MANAGEMENT SYSTEM\t\n");
     printf("----------------------------\t\n");
+
+    getWaysFromFile("preSavedRoutes.txt");
+    getDeliveriesFromFile("preSavedDiliveries.txt");
+
     int choice;
     do
     {
@@ -103,7 +107,13 @@ int main()
             showReport();
             break;
         case 6:
+
+            saveWaysToFile("preSavedRoutes.txt");
+            saveDeliveriesToFile("preSavedDiliveries.txt");
+
+            printf("Saving files...\n");
             printf("Exiting...\n\n");
+
             break;
         default:
             printf("Invalid choice... Enter choice again...\n\n");
@@ -417,7 +427,7 @@ void inputAndEditDis()
         distanceBetweenCits[startIndex-1][startIndex-1]  = 0;
         distanceBetweenCits[destinationIndex-1][destinationIndex-1]  = 0;
 
-        printf("Distance set to %s <--> %s = %d\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
+        printf("Distance set from %s to %s = %d kms\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
     }
 }
 
@@ -779,4 +789,49 @@ void addDeliveryRecord(char src[],char dest[],int distance,float time,float cuto
     profitRecord[deliCount]=profitChrge;
 
     printf("Successfully added...\n\n");
+}
+
+
+
+void saveWaysToFile(const char *filename)
+{
+    FILE *fp = fopen(filename, "w");
+    if(!fp)
+    {
+        printf("There is an error, Can't save in %s...\n\n",filename);
+        return;
+    }
+    fprintf(fp, "%d\n", avlCityCount);
+
+    for(int i=0;i<avlCityCount;i++)
+    {
+        fprintf(fp, "%s\n", cityName[i]);
+    }
+
+    for(int j=0;j<avlCityCount;j++)
+    {
+        for(int k=0;k<avlCityCount;k++)
+        {
+            fprintf(fp, "%d", distanceBetweenCits[j][k]);
+            if(k<avlCityCount-1)
+            {
+                fprintf(fp, " ");
+            }
+        }
+        fprintf(fp, "\n");
+    }
+    fclose(fp);
+    printf("Saved successfully to %s\n\n", filename);
+}
+void saveDeliveriesToFile(const char *filename)
+{
+
+}
+void getWaysFromFile(const char *filename)
+{
+
+}
+void getDeliveriesFromFile(const char *filename)
+{
+
 }

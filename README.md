@@ -132,7 +132,7 @@ Use `.txt` files to store and load persistent data.
 
 ## 🧰 Technologies & Tools
 
-- **C Language** (Code::Blocks / GCC)
+- **C Language** (Code Blocks)
 - **Git & GitHub**
 - **Text Files** for persistence
 
