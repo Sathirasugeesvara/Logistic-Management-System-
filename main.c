@@ -77,6 +77,7 @@ int main()
 
     getWaysFromFile("preSavedRoutes.txt");
     getDeliveriesFromFile("preSavedDiliveries.txt");
+    printf("Loading Route details and Delivery details....\n");
 
     int choice;
     do
@@ -826,10 +827,17 @@ void saveWaysToFile(const char *filename)
 
 void saveDeliveriesToFile(const char *filename)
 {
-
-
-
-
+    FILE *fp =fopen(filename, "w");
+    if(!fp)
+    {
+        return;
+    }
+    fprintf(fp, "%d\n", deliCount);
+    for(int i=0; i<deliCount; i++)
+    {
+        fprintf(fp, "%s %s %d %.2f %.2f %.2f\n", sourceCityRecord[i], destinationCityRecord[i], distanArrayRecord[i], timeRecord[i], costRecord[i], profitRecord[i]);
+    }
+    fclose(fp);
 }
 
 void getWaysFromFile(const char *filename)
@@ -900,8 +908,15 @@ void getWaysFromFile(const char *filename)
 
 void getDeliveriesFromFile(const char *filename)
 {
-
-
-
-
+    FILE *fp = fopen(filename, "r");
+    if(!fp)
+    {
+        return;
+    }
+    deliCount=0;
+    while(fscanf(fp, "%s %s %d %f %f %f", sourceCityRecord[deliCount], destinationCityRecord[deliCount], &distanArrayRecord[deliCount], &timeRecord[deliCount], &costRecord[deliCount], &profitRecord[deliCount])==6)
+    {
+        deliCount++;
+    }
+    fclose(fp);
 }
