@@ -10,22 +10,29 @@
 #define INF 1000000000
 
 char cityName[MAX_CITI][MAX_NAME_SIZE];
-float distanceBetweenCits[MAX_CITI][MAX_CITI];
-float deliveries[MAX_DELI];
+int distanceBetweenCits[MAX_CITI][MAX_CITI];
 int avlCityCount = 0, deliCount = 0 ;
 
 int goodWay[MAX_CITI];
 int goodLenth, goodestDistance ;
 
+//delivery records arrays
+char sourceCityRecord[MAX_DELI][MAX_NAME_SIZE];
+char destinationCityRecord[MAX_DELI][MAX_NAME_SIZE];
+int distanArrayRecord[MAX_DELI];
+float timeRecord[MAX_DELI];
+float costRecord[MAX_DELI];
+float profitRecord[MAX_DELI];
+
 struct vehicle
 {
     char type[20];
-    int capacity;
+    float capacity;
     float rate;
     float avgSpeed;
     float fuelEfficincy;
 };
-struct vehicle vehi[3] = {{"Van", 1000, 30.0, 60.0, 12.0},{"Truck", 5000, 40.0, 50.0, 6.0},{"Lorry", 10000, 80.0, 45.0, 4.0}
+struct vehicle vehi[3] = {{"Van", 1000.0, 30.0, 60.0, 12.0},{"Truck", 5000.0, 40.0, 50.0, 6.0},{"Lorry", 10000.0, 80.0, 45.0, 4.0}
 };
 
 
@@ -33,7 +40,7 @@ struct vehicle vehi[3] = {{"Van", 1000, 30.0, 60.0, 12.0},{"Truck", 5000, 40.0, 
 void mainMenuShow();
 void toHandleCities();
 void handleDistance();
-void showVehicles();//......................................
+void showVehicles();
 void handleDelivery();
 void showReport();
 
@@ -43,14 +50,25 @@ void renameCity();
 void removeCity();
 void showCity();
 void RemoveDistncsWhenCityRemove(int index);
+
 //for distance management function
 void inputAndEditDis();
 void displyDisMatrx();
+
 //for handle delivery function
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,float distance,int shortDis[],int shortLen);
-float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen);
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen);
+int findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen);
 void printShortDis(int shortDis[],int shortLen);
 int totalDistanceCovered(int way[],int n);
+
+//for showReports function
+void addDeliveryRecord(char src[],char dest[],int distance,float time,float cutomerCharge,float profitChrge);
+
+//for file handling
+void saveWaysToFile();
+void saveDeliveriesToFile();
+void getWaysFromFile();
+void getDeliveriesFromFile();
 
 int main()
 {
@@ -351,7 +369,7 @@ void handleDistance()
 void inputAndEditDis()
 {
     int startIndex= 0, destinationIndex= 0 ;
-    float distance=0.0;
+    int distance=0;
     if(avlCityCount<2)
     {
         printf("You must add 2 cities to set distance\n");
@@ -385,7 +403,7 @@ void inputAndEditDis()
     }
 
     printf("Enter distance in kilometers      : ");
-    scanf("%f", &distance);
+    scanf("%d", &distance);
     getchar();
     if(distance<=0)
     {
@@ -396,10 +414,10 @@ void inputAndEditDis()
         distanceBetweenCits[startIndex-1][destinationIndex-1]  = distance;
         distanceBetweenCits[destinationIndex-1][startIndex-1]  = distance;
 
-        distanceBetweenCits[startIndex-1][startIndex-1]  = 0.0;
-        distanceBetweenCits[destinationIndex-1][destinationIndex-1]  = 0.0;
+        distanceBetweenCits[startIndex-1][startIndex-1]  = 0;
+        distanceBetweenCits[destinationIndex-1][destinationIndex-1]  = 0;
 
-        printf("Distance set to %s <--> %s = %.1f\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
+        printf("Distance set to %s <--> %s = %d\n", cityName[startIndex-1],cityName[destinationIndex-1],distance);
     }
 }
 
@@ -434,7 +452,7 @@ void displyDisMatrx()
                 }
                 else
                 {
-                    printf("%-12.2f",distanceBetweenCits[y][z]);
+                    printf("%-12d",distanceBetweenCits[y][z]);
                 }
             }
         }
@@ -451,7 +469,7 @@ void showVehicles()
     printf("%-6s | %-10s | %12s | %-10s | %-12s | %15s\n","No","Type","Capacity(Kg)","RatePerKm","Speed(Km/h)","Fuel Efficiency");
     for (int i =0; i<3; i++)
     {
-        printf("%-6d | %-10s | %12d | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
+        printf("%-6d | %-10s | %12.2f | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
     }
 }
 
@@ -460,7 +478,7 @@ void showVehicles()
 void handleDelivery()
 {
     int sourceIndex=0,destiIndex=0,vehiType=0;
-    float weight=0;
+    float weight=0.0;
 
     if(avlCityCount<2)
     {
@@ -480,7 +498,7 @@ void handleDelivery()
     getchar();
     if(sourceIndex<1||sourceIndex>avlCityCount)
     {
-        printf("Invalid source city number...\n");
+        printf("Invalid source city number. so can't complete delivery...\n");
         return;
     }
 
@@ -489,12 +507,12 @@ void handleDelivery()
     getchar();
     if(destiIndex<1||destiIndex>avlCityCount)
     {
-        printf("Invalid destination city number...\n");
+        printf("Invalid destination city number.  so can't complete delivery...\n");
         return;
     }
     if(destiIndex==sourceIndex)
     {
-        printf("You entered same city for source and destination\n");
+        printf("You entered same city for source and destination. so can't complete delivery\n");
         return;
     }
 
@@ -504,7 +522,7 @@ void handleDelivery()
     getchar();
     if(vehiType<1||vehiType>3)
     {
-        printf("Invalid vehicle index...\n");
+        printf("Invalid vehicle index.  so can't complete delivery...\n");
         return;
     }
 
@@ -513,47 +531,47 @@ void handleDelivery()
     getchar();
     if(vehiType==1)
     {
-        if(weight>1000.0||weight<0)
+        if(weight>1000.0||weight<0.0)
         {
-            printf("Weight is higher than capacity...\n");
+            printf("Weight is higher than capacity. so can't complete delivery...\n");
             return;
         }
     }
     if(vehiType==2)
     {
-        if(weight>5000.0||weight<0)
+        if(weight>5000.0||weight<0.0)
         {
-            printf("Weight is higher than capacity...\n");
+            printf("Weight is higher than capacity. so can't complete delivery...\n");
             return;
         }
     }
     if(vehiType==3)
     {
-        if(weight>10000.0||weight<0)
+        if(weight>10000.0||weight<0.0)
         {
-            printf("Weight is higher than capacity...\n");
+            printf("Weight is higher than capacity. so can't complete delivery...\n");
             return;
         }
     }
 
     int shortDis[MAX_CITI];
     int shortLen=0;
-    float distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,&shortLen);
+    int distance=findLeastCostRoute(sourceIndex-1, destiIndex-1,shortDis,&shortLen);
     if(distance==-1)
     {
         printf("Please check distance matrix between %s and %s... No route found\n",cityName[sourceIndex-1],cityName[destiIndex-1]);
         return;
     }
-    printf("Short distance route : ");
+    printf("\n\nShort distance route : ");
     printShortDis(shortDis,shortLen);
-    printf("Minimum distance : %.2f km\n", distance);
+    printf("Minimum distance : %d km\n", distance);
 
     calculAndMiniStat(sourceIndex-1, destiIndex-1,weight,vehiType-1,distance,shortDis,shortLen);
 
     deliCount++;
 }
 
-float findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen)
+int findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen)
 {
     if(avlCityCount<=2)
     {
@@ -640,10 +658,10 @@ void printShortDis(int shortDis[],int shortLen)
     printf("\n");
 }
 
-void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,float distance,int shortDis[],int shortLen)
+void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,int distance,int shortDis[],int shortLen)
 {
     float W=weight;
-    float D=distance;
+    float D=(float)distance;
     float R=vehi[vehiType].rate;
     float S=vehi[vehiType].avgSpeed;
     float E=vehi[vehiType].fuelEfficincy;
@@ -659,7 +677,7 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
     float finlCharCustomer=profit+TotlOperaCost;
 
 
-    printf("\n\n====================================================== \n");
+    printf("\n====================================================== \n");
     printf("DELIVERY COST ESTIMATION\n");
     printf("------------------------------------------------------\n");
     printf("From\t: %s\n", cityName[sourceIndex]);
@@ -683,24 +701,8 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
         return;
     }
 
-    /*
-    Delivery d;
-    d.source=sourceindex;
-    d.destination=destinationindex;
-    d.vehicletype=vehicleindex;
-    d.weight=W;
-    d.distance=D;
-    d.cost=basecost;
-    d.fuelused=fuelused;
-    d.fuelcost=fuelcost;
-    d.totalcosr=totaloperatiancost;
-    d.profit=profit;
-    d.custemercharge=customercharge;
-    d.time=estimatedtime;
+    addDeliveryRecord(cityName[sourceIndex], cityName[destiIndex], distance, estimaDeliTime, finlCharCustomer, profit);
 
-    deliveries[deliveryCount++]=d;
-    printf("Delivery saved as record #%d. \n", deliveryCount);
-    */
 }
 
 int totalDistanceCovered(int way[],int n)
@@ -722,17 +724,59 @@ int totalDistanceCovered(int way[],int n)
 
 void showReport()
 {
+    int totalDis=0;
+    float totlTim=0.0;
+    float totlRev=0.0;
+    float totlPro=0.0;
+    int longOne=distanArrayRecord[0];
+    int shortOne=distanArrayRecord[0];
+    int longIndex=0,shortIndex=0;
+
     if(deliCount==0)
     {
         printf("No deliveries added yet...\n");
         return;
     }
+    for (int i=0; i<deliCount; i++)
+    {
+        totalDis=totalDis+distanArrayRecord[i];
+        totlTim=totlTim+timeRecord[i];
+        totlRev=totlRev+costRecord[i];
+        totlPro=totlPro+profitRecord[i];
+
+        if(distanArrayRecord[i]>longOne)
+        {
+            longOne=distanArrayRecord[i];
+            longIndex=i;
+        }
+
+        if(distanArrayRecord[i]<shortOne)
+        {
+            shortOne=distanArrayRecord[i];
+            shortIndex=i;
+        }
+    }
 
     printf("\n----Report Section----\n");
     printf("\nTotal Deliveries Completed : %d\n", deliCount);
-    /*printf("Total Distance Covered : %.2f km \n", ................);
-    printf("Average Delivery Time : %.2f hours \n", ................ );
-    printf("Total Revenue and Profit : %.2f LKR \n", ................ );
-    printf("Longest Route Completed\n");
-    printf("Shortest Route Completed\n");*/
+    printf("Total Distance Covered : %d km \n", totalDis);
+    printf("Average Delivery Time : %.2f hours \n", totlTim);
+    printf("Total Revenue : %.2f LKR \n", totlRev);
+    printf("Total Profit : %.2f LKR \n", totlPro);
+    printf("Longest Route Completed : %s -> %s  , %d km\n",sourceCityRecord[longIndex],destinationCityRecord[longIndex],distanArrayRecord[longIndex]);
+
+    printf("Shortest Route Completed : %s -> %s  , %d km\n",sourceCityRecord[shortIndex],destinationCityRecord[shortIndex],distanArrayRecord[shortIndex]);
+
+}
+
+void addDeliveryRecord(char src[],char dest[],int distance,float time,float cutomerCharge,float profitChrge)
+{
+    strcpy(sourceCityRecord[deliCount],src);
+    strcpy(destinationCityRecord[deliCount],dest);
+    distanArrayRecord[deliCount]=distance;
+    timeRecord[deliCount]=time;
+    costRecord[deliCount]=cutomerCharge;
+    profitRecord[deliCount]=profitChrge;
+
+    printf("Successfully added...\n\n");
 }
