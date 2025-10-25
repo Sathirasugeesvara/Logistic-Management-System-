@@ -803,14 +803,14 @@ void saveWaysToFile(const char *filename)
     }
     fprintf(fp, "%d\n", avlCityCount);
 
-    for(int i=0;i<avlCityCount;i++)
+    for(int i=0; i<avlCityCount; i++)
     {
         fprintf(fp, "%s\n", cityName[i]);
     }
 
-    for(int j=0;j<avlCityCount;j++)
+    for(int j=0; j<avlCityCount; j++)
     {
-        for(int k=0;k<avlCityCount;k++)
+        for(int k=0; k<avlCityCount; k++)
         {
             fprintf(fp, "%d", distanceBetweenCits[j][k]);
             if(k<avlCityCount-1)
@@ -823,15 +823,85 @@ void saveWaysToFile(const char *filename)
     fclose(fp);
     printf("Saved successfully to %s\n\n", filename);
 }
+
 void saveDeliveriesToFile(const char *filename)
 {
 
-}
-void getWaysFromFile(const char *filename)
-{
+
+
 
 }
+
+void getWaysFromFile(const char *filename)
+{
+    FILE *fp = fopen(filename, "r");
+    if(!fp)
+    {
+        return;  //there are no any file saved so return this
+    }
+    int n =0;
+    if(fscanf(fp, "%d\n", &n) != 1)
+    {
+        fclose(fp);
+        return;
+    }
+    if(n<0 ||n >MAX_CITI)
+    {
+        fclose(fp);
+        return;
+    }
+
+    char line[512];
+    for(int i=0; i<n; i++)
+    {
+        if(fgets(line, sizeof(line), fp)==NULL)
+        {
+            n=i;
+            break;
+        }
+        line[strcspn(line, "\n")]=0;
+        strncpy(cityName[i],line, MAX_NAME_SIZE-1 );
+        cityName[i][MAX_NAME_SIZE-1]='\0';
+    }
+
+    for(int i=n; i<MAX_CITI; i++)
+    {
+        cityName[i][0] ='\0';
+    }
+
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<n; j++)
+        {
+            if(fscanf(fp, "%d", &distanceBetweenCits[i][j])!= 1)
+            {
+                distanceBetweenCits[i][j]=0;
+            }
+        }
+    }
+    for(int i=0; i<n; i++)
+    {
+        distanceBetweenCits[i][i]=0;
+        for(int j=i+1; j<n; j++ )
+        {
+            if(distanceBetweenCits[i][j]==0 && distanceBetweenCits[j][i]>0)
+            {
+                distanceBetweenCits[i][j]=distanceBetweenCits[j][i];
+            }
+            if(distanceBetweenCits[j][i]==0 && distanceBetweenCits[i][j]>0)
+            {
+                distanceBetweenCits[j][i]=distanceBetweenCits[i][j];
+            }
+        }
+    }
+    avlCityCount=n;
+    fclose(fp);
+}
+
 void getDeliveriesFromFile(const char *filename)
 {
+
+
+
 
 }
