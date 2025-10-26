@@ -65,10 +65,10 @@ int totalDistanceCovered(int way[],int n);
 void addDeliveryRecord(char src[],char dest[],int distance,float time,float cutomerCharge,float profitChrge);
 
 //for file handling
-void saveWaysToFile(const char *filename);
-void saveDeliveriesToFile(const char *filename);
-void getWaysFromFile(const char *filename);
-void getDeliveriesFromFile(const char *filename);
+void saveWaysToFile(const char *filnam);
+void saveDeliveriesToFile(const char *filnam);
+void getWaysFromFile(const char *filnam);
+void getDeliveriesFromFile(const char *filnam);
 
 int main()
 {
@@ -239,7 +239,7 @@ void renameCity()
             tempCity[strcspn(tempCity, "\n")]=0;
 
             int avalbl=0;//if new name available in city list check it
-            for(int j; j<avlCityCount; j++)
+            for(int j=0; j<avlCityCount; j++)
             {
                 if(j!= (index-1)&&strcmp(cityName[j],tempCity)==0)
                 {
@@ -496,7 +496,7 @@ void handleDelivery()
         printf("Add more than 2 cities...\n");
         return;
     }
-    if(deliCount>50)
+    if(deliCount>=50)
     {
         printf("Out of maximum deliveries...\n");
         return;
@@ -582,75 +582,95 @@ void handleDelivery()
     deliCount++;
 }
 
-int findLeastCostRoute(int sourceIndex,int destiIndex,int shortDis[],int *shortLen)
+int findLeastCostRoute(int sourceIndex, int destiIndex, int shortDis[], int *shortLen)
 {
-    if(avlCityCount<=2)
-    {
-        shortDis[0]=sourceIndex;
-        shortDis[1]=destiIndex;
-        *shortLen=2;
-        return distanceBetweenCits[sourceIndex][destiIndex];
+    // basic checks
+    if (sourceIndex < 0 || sourceIndex >= avlCityCount ||
+        destiIndex < 0   || destiIndex >= avlCityCount) {
+        *shortLen = 0;
+        return -1;
     }
-    int between[MAX_CITI];
-    int z=0;
-    for(int j=0; j<avlCityCount; j++)
+    if (sourceIndex == destiIndex) {
+        shortDis[0] = sourceIndex;
+        *shortLen = 1;
+        return 0;
+    }
+
+    // collect all possible intermediate cities (exclude source & dest)
+    int inter[MAX_CITI];
+    int k = 0;
+    for (int i = 0; i < avlCityCount; i++) {
+        if (i == sourceIndex || i == destiIndex) continue;
+        inter[k++] = i;
+    }
+
+    // initialize best
+    int bestDist = INF;
+    int bestRouteLocal[MAX_CITI];
+    int bestLenLocal = 0;
+
+    // 0-intermediate: direct route
     {
-        if (j != sourceIndex && j != destiIndex)
-        {
-            between[z++]=j;
+        int route0[2] = { sourceIndex, destiIndex };
+        int d0 = totalDistanceCovered(route0, 2);
+        if (d0 < bestDist) {
+            bestDist = d0;
+            bestRouteLocal[0] = route0[0];
+            bestRouteLocal[1] = route0[1];
+            bestLenLocal = 2;
         }
     }
-    if(z>2)
-    {
-        z=2;
-    }
-    goodestDistance=INF;
-    goodLenth=0;
-    if(z==0)
-    {
-        int route[2]= {sourceIndex,destiIndex};
-        int dis=totalDistanceCovered(route,2);
-        if(dis<goodestDistance)
-        {
-            goodestDistance=dis;
-            memcpy(goodWay,route,2*sizeof(int));
-            goodLenth=2;
+
+    // 1-intermediate: try every possible single intermediate city
+    for (int i = 0; i < k; i++) {
+        int route1[3] = { sourceIndex, inter[i], destiIndex };
+        int d1 = totalDistanceCovered(route1, 3);
+        if (d1 < bestDist) {
+            bestDist = d1;
+            bestRouteLocal[0] = route1[0];
+            bestRouteLocal[1] = route1[1];
+            bestRouteLocal[2] = route1[2];
+            bestLenLocal = 3;
         }
     }
-    else if(z==1)
-    {
-        int route[3]= {sourceIndex,between[0],destiIndex};
-        int dis= totalDistanceCovered(route,3);
-        if(dis<goodestDistance)
-        {
-            goodestDistance=dis;
-            memcpy(goodWay,route,3*sizeof(int));
-            goodLenth=3;
-        }
-    }
-    else
-    {
-        int temp[2]= {between[0],between[1]};
-        for(int i=0; i<2; i++)
-        {
-            int route[4]= {sourceIndex,temp[i],temp[1-i],destiIndex};
-            int dis=totalDistanceCovered(route,4);
-            if(dis<goodestDistance)
-            {
-                goodestDistance=dis;
-                memcpy(goodWay,route,4*sizeof(int));
-                goodLenth=4;
+
+    // 2-intermediate: try every unordered pair (i,j) of intermediates and both permutations
+    for (int a = 0; a < k; a++) {
+        for (int b = a + 1; b < k; b++) {
+            int i = inter[a];
+            int j = inter[b];
+
+            // permutation 1: src -> i -> j -> dst
+            int route2a[4] = { sourceIndex, i, j, destiIndex };
+            int d2a = totalDistanceCovered(route2a, 4);
+            if (d2a < bestDist) {
+                bestDist = d2a;
+                for (int t = 0; t < 4; t++) bestRouteLocal[t] = route2a[t];
+                bestLenLocal = 4;
+            }
+
+            // permutation 2: src -> j -> i -> dst
+            int route2b[4] = { sourceIndex, j, i, destiIndex };
+            int d2b = totalDistanceCovered(route2b, 4);
+            if (d2b < bestDist) {
+                bestDist = d2b;
+                for (int t = 0; t < 4; t++) bestRouteLocal[t] = route2b[t];
+                bestLenLocal = 4;
             }
         }
     }
-    for(int j=0; j<goodLenth; j++)
-    {
-        shortDis[j]=goodWay[j];
-    }
-    *shortLen=goodLenth;
-    return (goodestDistance==INF) ?-1:goodestDistance;
-}
 
+    // if no route found
+    if (bestDist >= INF) {
+        *shortLen = 0;
+        return -1;
+    }
+
+    // copy best route to output
+    for (int i = 0; i < bestLenLocal; i++) shortDis[i] = bestRouteLocal[i];
+    *shortLen = bestLenLocal;
+    return bestDist;
+}
 void printShortDis(int shortDis[],int shortLen)
 {
     if(shortLen<=0)
@@ -716,20 +736,18 @@ void calculAndMiniStat(int sourceIndex,int destiIndex,float weight,int vehiType,
 
 }
 
-int totalDistanceCovered(int way[],int n)
+int totalDistanceCovered(int way[], int n)
 {
-    int sum =0;
-    for(int i=0; i<n-1; i++)
+    int sum = 0;
+    for (int i = 0; i < n - 1; i++)
     {
-        int d= distanceBetweenCits[way[i]][way[i+1]];
-        if (d<=0)
-        {
-            return INF;
-        }
+        int d = distanceBetweenCits[way[i]][way[i + 1]];
+        if (d <= 0) return INF; // invalid route (no direct link)
         sum += d;
     }
     return sum;
 }
+
 
 
 
@@ -769,15 +787,13 @@ void showReport()
     }
 
     printf("\n----Report Section----\n");
-    printf("\nTotal Deliveries Completed : %d\n", deliCount);
-    printf("Total Distance Covered : %d km \n", totalDis);
-    printf("Average Delivery Time : %.2f hours \n", totlTim);
-    printf("Total Revenue : %.2f LKR \n", totlRev);
-    printf("Total Profit : %.2f LKR \n", totlPro);
-    printf("Longest Route Completed : %s -> %s  , %d km\n",sourceCityRecord[longIndex],destinationCityRecord[longIndex],distanArrayRecord[longIndex]);
-
-    printf("Shortest Route Completed : %s -> %s  , %d km\n",sourceCityRecord[shortIndex],destinationCityRecord[shortIndex],distanArrayRecord[shortIndex]);
-
+    printf("\nTotal Deliveries Completed   : %d\n", deliCount);
+    printf("Total Distance Covered       : %d km \n", totalDis);
+    printf("Average Delivery Time        : %.2f hours \n", totlTim/deliCount);
+    printf("Total Revenue                : %.2f LKR \n", totlRev);
+    printf("Total Profit                 : %.2f LKR \n", totlPro);
+    printf("Longest Route Completed      : %s -> %s  , %d km\n",sourceCityRecord[longIndex],destinationCityRecord[longIndex],distanArrayRecord[longIndex]);
+    printf("Shortest Route Completed     : %s -> %s  , %d km\n",sourceCityRecord[shortIndex],destinationCityRecord[shortIndex],distanArrayRecord[shortIndex]);
 }
 
 void addDeliveryRecord(char src[],char dest[],int distance,float time,float cutomerCharge,float profitChrge)
@@ -794,12 +810,13 @@ void addDeliveryRecord(char src[],char dest[],int distance,float time,float cuto
 
 
 
-void saveWaysToFile(const char *filename)
+void saveWaysToFile(const char *filnam)
 {
-    FILE *fp = fopen(filename, "w");
+    FILE *fp = fopen(filnam, "w");
+
     if(!fp)
     {
-        printf("There is an error, Can't save in %s...\n\n",filename);
+        printf("There is an error, Can't save in %s...\n\n",filnam);
         return;
     }
     fprintf(fp, "%d\n", avlCityCount);
@@ -822,30 +839,32 @@ void saveWaysToFile(const char *filename)
         fprintf(fp, "\n");
     }
     fclose(fp);
-    printf("Saved successfully to %s\n\n", filename);
+    printf("Saved successfully to %s\n\n", filnam);
 }
 
-void saveDeliveriesToFile(const char *filename)
+void saveDeliveriesToFile(const char *filnam)
 {
-    FILE *fp =fopen(filename, "w");
+    FILE *fp = fopen(filnam, "w");
+
     if(!fp)
     {
         return;
     }
-    fprintf(fp, "%d\n", deliCount);
+
     for(int i=0; i<deliCount; i++)
     {
         fprintf(fp, "%s %s %d %.2f %.2f %.2f\n", sourceCityRecord[i], destinationCityRecord[i], distanArrayRecord[i], timeRecord[i], costRecord[i], profitRecord[i]);
     }
+
     fclose(fp);
 }
 
-void getWaysFromFile(const char *filename)
+void getWaysFromFile(const char *filnam)
 {
-    FILE *fp = fopen(filename, "r");
+    FILE *fp = fopen(filnam, "r");
     if(!fp)
     {
-        return;  //there are no any file saved so return this
+        return;
     }
     int n =0;
     if(fscanf(fp, "%d\n", &n) != 1)
@@ -859,15 +878,15 @@ void getWaysFromFile(const char *filename)
         return;
     }
 
-    char line[512];
+    char line[256];
     for(int i=0; i<n; i++)
     {
-        if(fgets(line, sizeof(line), fp)==NULL)
+        if(!fgets(line, sizeof(line), fp))
         {
             n=i;
             break;
         }
-        line[strcspn(line, "\n")]=0;
+        line[strcspn(line, "\r\n")]=0;
         strncpy(cityName[i],line, MAX_NAME_SIZE-1 );
         cityName[i][MAX_NAME_SIZE-1]='\0';
     }
@@ -890,25 +909,15 @@ void getWaysFromFile(const char *filename)
     for(int i=0; i<n; i++)
     {
         distanceBetweenCits[i][i]=0;
-        for(int j=i+1; j<n; j++ )
-        {
-            if(distanceBetweenCits[i][j]==0 && distanceBetweenCits[j][i]>0)
-            {
-                distanceBetweenCits[i][j]=distanceBetweenCits[j][i];
-            }
-            if(distanceBetweenCits[j][i]==0 && distanceBetweenCits[i][j]>0)
-            {
-                distanceBetweenCits[j][i]=distanceBetweenCits[i][j];
-            }
-        }
+
     }
     avlCityCount=n;
     fclose(fp);
 }
 
-void getDeliveriesFromFile(const char *filename)
+void getDeliveriesFromFile(const char *filnam)
 {
-    FILE *fp = fopen(filename, "r");
+    FILE *fp = fopen(filnam, "r");
     if(!fp)
     {
         return;
@@ -917,6 +926,8 @@ void getDeliveriesFromFile(const char *filename)
     while(fscanf(fp, "%s %s %d %f %f %f", sourceCityRecord[deliCount], destinationCityRecord[deliCount], &distanArrayRecord[deliCount], &timeRecord[deliCount], &costRecord[deliCount], &profitRecord[deliCount])==6)
     {
         deliCount++;
+
     }
     fclose(fp);
 }
+

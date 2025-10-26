@@ -1,0 +1,9 @@
+4
+Matugama
+Kalutara
+Colombo
+Jaffna
+0 20 60 500
+20 0 30 350
+60 30 0 300
+500 350 300 0
