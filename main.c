@@ -473,19 +473,6 @@ void displyDisMatrx()
 }
 
 
-
-void showVehicles()
-{
-    printf("\n---Vehicle Informations---\n");
-    printf("%-6s | %-10s | %12s | %-10s | %-12s | %15s\n","No","Type","Capacity(Kg)","RatePerKm","Speed(Km/h)","Fuel Efficiency");
-    for (int i =0; i<3; i++)
-    {
-        printf("%-6d | %-10s | %12.2f | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
-    }
-}
-
-
-
 void handleDelivery()
 {
     int sourceIndex=0,destiIndex=0,vehiType=0;
@@ -584,48 +571,46 @@ void handleDelivery()
 
 int findLeastCostRoute(int sourceIndex, int destiIndex, int shortDis[], int *shortLen)
 {
-    // basic checks
-    if (sourceIndex < 0 || sourceIndex >= avlCityCount ||
-        destiIndex < 0   || destiIndex >= avlCityCount) {
+    if (sourceIndex < 0 || sourceIndex >= avlCityCount || destiIndex < 0   || destiIndex >= avlCityCount)
+    {
         *shortLen = 0;
         return -1;
     }
-    if (sourceIndex == destiIndex) {
+    if (sourceIndex == destiIndex)
+    {
         shortDis[0] = sourceIndex;
         *shortLen = 1;
         return 0;
     }
-
-    // collect all possible intermediate cities (exclude source & dest)
     int inter[MAX_CITI];
     int k = 0;
-    for (int i = 0; i < avlCityCount; i++) {
+    for (int i = 0; i < avlCityCount; i++)
+    {
         if (i == sourceIndex || i == destiIndex) continue;
         inter[k++] = i;
     }
 
-    // initialize best
     int bestDist = INF;
     int bestRouteLocal[MAX_CITI];
     int bestLenLocal = 0;
 
-    // 0-intermediate: direct route
     {
         int route0[2] = { sourceIndex, destiIndex };
         int d0 = totalDistanceCovered(route0, 2);
-        if (d0 < bestDist) {
+        if (d0 < bestDist)
+        {
             bestDist = d0;
             bestRouteLocal[0] = route0[0];
             bestRouteLocal[1] = route0[1];
             bestLenLocal = 2;
         }
     }
-
-    // 1-intermediate: try every possible single intermediate city
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < k; i++)
+    {
         int route1[3] = { sourceIndex, inter[i], destiIndex };
         int d1 = totalDistanceCovered(route1, 3);
-        if (d1 < bestDist) {
+        if (d1 < bestDist)
+        {
             bestDist = d1;
             bestRouteLocal[0] = route1[0];
             bestRouteLocal[1] = route1[1];
@@ -633,26 +618,24 @@ int findLeastCostRoute(int sourceIndex, int destiIndex, int shortDis[], int *sho
             bestLenLocal = 3;
         }
     }
-
-    // 2-intermediate: try every unordered pair (i,j) of intermediates and both permutations
-    for (int a = 0; a < k; a++) {
-        for (int b = a + 1; b < k; b++) {
+    for (int a = 0; a < k; a++)
+    {
+        for (int b = a + 1; b < k; b++)
+        {
             int i = inter[a];
             int j = inter[b];
-
-            // permutation 1: src -> i -> j -> dst
             int route2a[4] = { sourceIndex, i, j, destiIndex };
             int d2a = totalDistanceCovered(route2a, 4);
-            if (d2a < bestDist) {
+            if (d2a < bestDist)
+            {
                 bestDist = d2a;
                 for (int t = 0; t < 4; t++) bestRouteLocal[t] = route2a[t];
                 bestLenLocal = 4;
             }
-
-            // permutation 2: src -> j -> i -> dst
             int route2b[4] = { sourceIndex, j, i, destiIndex };
             int d2b = totalDistanceCovered(route2b, 4);
-            if (d2b < bestDist) {
+            if (d2b < bestDist)
+            {
                 bestDist = d2b;
                 for (int t = 0; t < 4; t++) bestRouteLocal[t] = route2b[t];
                 bestLenLocal = 4;
@@ -660,17 +643,19 @@ int findLeastCostRoute(int sourceIndex, int destiIndex, int shortDis[], int *sho
         }
     }
 
-    // if no route found
-    if (bestDist >= INF) {
+    if (bestDist >= INF)
+    {
         *shortLen = 0;
         return -1;
     }
-
-    // copy best route to output
-    for (int i = 0; i < bestLenLocal; i++) shortDis[i] = bestRouteLocal[i];
+    for (int i = 0; i < bestLenLocal; i++)
+    {
+        shortDis[i] = bestRouteLocal[i];
+    }
     *shortLen = bestLenLocal;
     return bestDist;
 }
+
 void printShortDis(int shortDis[],int shortLen)
 {
     if(shortLen<=0)
@@ -742,13 +727,14 @@ int totalDistanceCovered(int way[], int n)
     for (int i = 0; i < n - 1; i++)
     {
         int d = distanceBetweenCits[way[i]][way[i + 1]];
-        if (d <= 0) return INF; // invalid route (no direct link)
+        if (d <= 0)
+        {
+            return INF;
+        }
         sum += d;
     }
     return sum;
 }
-
-
 
 
 void showReport()
@@ -929,5 +915,16 @@ void getDeliveriesFromFile(const char *filnam)
 
     }
     fclose(fp);
+}
+
+
+void showVehicles()
+{
+    printf("\n---Vehicle Informations---\n");
+    printf("%-6s | %-10s | %12s | %-10s | %-12s | %15s\n","No","Type","Capacity(Kg)","RatePerKm","Speed(Km/h)","Fuel Efficiency");
+    for (int i =0; i<3; i++)
+    {
+        printf("%-6d | %-10s | %12.2f | %10.2f | %12.1f | %15.1f\n", i +1,vehi[i].type,vehi[i].capacity,vehi[i].rate,vehi[i].avgSpeed,vehi[i].fuelEfficincy);
+    }
 }
 
